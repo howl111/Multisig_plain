@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_env::{DefaultEnvironment as Env, AccountId, call::{CallParams, Selector}, test::CallData};
-use multisig_plain::{Transaction, ConfirmationStatus};
 
 pub use self::multisig::{ConfirmationStatus, Multisig, Transaction};
 
@@ -9,7 +7,10 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod multisig {
-    use ink_env::call::{build_call, utils::ReturnType, ExecutionInput};
+    use ink_env::{
+        call::{build_call, utils::ReturnType, CallParam, ExecutionInput, Selector}, 
+        test::Calldata,
+    };
 
     use ink_prelude::vec::Vec;
     use ink_storage::{
@@ -77,6 +78,7 @@ mod multisig {
         transactions: StorageStash<Transaction>,
         owners: StorageVec<AccountId>,
         is_owner: StorageHashMap<AccountId, ()>,
+        wallet_id: StorageHashMap<AccountId, ()>,
         requirement: Lazy<u32>,
     }
 
@@ -163,7 +165,6 @@ mod multisig {
             self.is_owner.insert(new_owner, ());
             self.owners.push(new_owner);
             self.env().emit_event(OwnerAddition { owner: new_owner });
-            
             let alice: AccountId = [1u8; 32].into();
             let mut call = CallData::new(Selector::new([166, 229, 27, 154])); // add_owner
             call.push_arg(&alice);
