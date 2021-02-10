@@ -153,6 +153,7 @@ mod multisig {
                 transactions: StorageStash::default(),
                 owners,
                 is_owner,
+                wallet_id,
                 requirement: Lazy::new(requirement),
             }
         }
